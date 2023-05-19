@@ -38,7 +38,8 @@ fn main() -> Result<(), ureq::Error> {
     let ip = agent
         .get("https://ipv4.teams.cloudflare.com")
         .call()?
-        .into_json::<IpInfo>()?;
+        .into_json::<IpInfo>()?
+        .ip;
 
     let resp = agent.put(&format!("https://api.cloudflare.com/client/v4/accounts/{acc_id}/gateway/locations/{location_uuid}"))
         .set("X-Auth-Email", acc_email)
@@ -48,7 +49,7 @@ fn main() -> Result<(), ureq::Error> {
             networks: vec![
                 Network {
                     network: {
-                        let mut ip = ip.ip.clone();
+                        let mut ip = ip.clone();
                         ip.push_str("/32");
 
                         ip
