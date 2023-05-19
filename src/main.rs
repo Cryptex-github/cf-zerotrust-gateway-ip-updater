@@ -1,6 +1,6 @@
 use std::{process::exit, sync::Arc};
 
-use ureq::serde_json::Value;
+use ureq::{serde_json::Value, Error};
 
 #[derive(serde::Deserialize)]
 struct IpInfo {
@@ -56,6 +56,13 @@ fn main() -> Result<(), ureq::Error> {
                     }
                 }
             ]
+        })
+        .map_err(|e| match e {
+            Error::Status(status, resp) => {
+                eprintln!("{status} error: {}", resp.into_string().expect("Can't convert body to string"));
+                exit(1)
+            }
+            _ => e
         })?
         .into_json::<Value>()?;
 

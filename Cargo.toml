@@ -1,7 +1,11 @@
 [package]
 name = "cf-zerotrust-gateway-ip-updater"
+authors = ["Cryptex"]
+description = "Automatically update the origin IP Address for Cloudflare's zerotrust gateway."
+repository = "https://github.com/Cryptex-github/cf-zerotrust-gateway-ip-updater"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
