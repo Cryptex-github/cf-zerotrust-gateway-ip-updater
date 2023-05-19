@@ -48,7 +48,7 @@ fn main() -> Result<(), ureq::Error> {
             networks: vec![
                 Network {
                     network: {
-                        let mut ip = ip.ip;
+                        let mut ip = ip.ip.clone();
                         ip.push_str("/32");
 
                         ip
@@ -62,6 +62,7 @@ fn main() -> Result<(), ureq::Error> {
         eprintln!("Failed to update gateway origin\n{}", resp.to_string());
         exit(1);
     }
+    println!("Updated `{location_name}` to `{ip}`");
 
     Ok(())
 }
