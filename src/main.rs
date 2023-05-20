@@ -1,25 +1,26 @@
-use std::{process::exit, sync::Arc};
+use std::{fs, process::exit, sync::Arc};
 
-use ureq::{serde_json::Value, Error};
+use serde::{Serialize, Deserialize};
+use ureq::serde_json::Value;
 
-#[derive(serde::Deserialize)]
+#[derive(Deserialize)]
 struct IpInfo {
     ip: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct Network {
     network: String,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Serialize)]
 struct RequestJson {
     name: String,
     networks: Vec<Network>,
 }
 
 fn main() -> Result<(), ureq::Error> {
-    let config = std::fs::read_to_string("./config.conf").expect("Missing config.conf file");
+    let config = fs::read_to_string("./config.conf").expect("Missing config.conf file");
     let mut vars = config.lines();
 
     let acc_id = vars.next().expect("Missing account ID argument");
@@ -48,12 +49,7 @@ fn main() -> Result<(), ureq::Error> {
             name: location_name.to_string(),
             networks: vec![
                 Network {
-                    network: {
-                        let mut ip = ip.clone();
-                        ip.push_str("/32");
-
-                        ip
-                    }
+                    network: ip.clone() + "/32",
                 }
             ]
         })
@@ -66,7 +62,7 @@ fn main() -> Result<(), ureq::Error> {
         })?
         .into_json::<Value>()?;
 
-    if resp["success"] == false {
+    if !resp["success"] {
         eprintln!("Failed to update gateway origin\n{}", resp.to_string());
         exit(1);
     }
