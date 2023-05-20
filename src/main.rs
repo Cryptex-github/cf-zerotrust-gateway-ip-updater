@@ -1,7 +1,7 @@
 use std::{fs, process::exit, sync::Arc};
 
-use serde::{Serialize, Deserialize};
-use ureq::serde_json::Value;
+use serde::{Deserialize, Serialize};
+use ureq::{serde_json::Value, Error};
 
 #[derive(Deserialize)]
 struct IpInfo {
@@ -14,9 +14,9 @@ struct Network {
 }
 
 #[derive(Serialize)]
-struct RequestJson {
-    name: String,
-    networks: Vec<Network>,
+struct RequestJson<'a> {
+    name: &'a str,
+    networks: [Network; 1],
 }
 
 fn main() -> Result<(), ureq::Error> {
@@ -46,10 +46,10 @@ fn main() -> Result<(), ureq::Error> {
         .set("X-Auth-Email", acc_email)
         .set("X-Auth-Key", acc_auth_key)
         .send_json(RequestJson {
-            name: location_name.to_string(),
-            networks: vec![
+            name: location_name,
+            networks: [
                 Network {
-                    network: ip.clone() + "/32",
+                    network: ip.to_string() + "/32",
                 }
             ]
         })
@@ -62,7 +62,7 @@ fn main() -> Result<(), ureq::Error> {
         })?
         .into_json::<Value>()?;
 
-    if !resp["success"] {
+    if resp["success"] == false {
         eprintln!("Failed to update gateway origin\n{}", resp.to_string());
         exit(1);
     }
